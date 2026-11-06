@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>calendar_side_panel</id>
+	<name>Calendar side panel</name>
+	<summary>Upcoming events in a right-hand panel, available from the header in every app</summary>
+	<description><![CDATA[Adds a calendar button to the top-right header on every logged-in page (Talk, Files, Mail, …).
+Clicking it opens a right-hand "Upcoming events" panel listing today through the next 7 days (ended events hidden, in-progress events highlighted) from all
+calendars you can see, including read-only subscriptions (ICS/webcal). Clicking an event opens it in
+the Calendar app.
+
+Read-only. Does not modify Talk or Calendar.]]></description>
+	<version>1.0.3</version>
+	<licence>agpl</licence>
+	<author mail="bill@pardi.net">Bill Pardi</author>
+	<namespace>CalendarSidePanel</namespace>
+	<category>organization</category>
+	<category>customization</category>
+	<bugs>https://cloud.pardi.net</bugs>
+	<dependencies>
+		<php min-version="8.2" max-version="8.5"/>
+		<nextcloud min-version="33" max-version="36"/>
+	</dependencies>
+</info>

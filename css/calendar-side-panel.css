@@ -1,0 +1,231 @@
+/* SPDX-FileCopyrightText: 2026 Bill Pardi
+ * SPDX-License-Identifier: AGPL-3.0-or-later */
+
+.csp-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: var(--header-height, 50px);
+}
+
+.csp-trigger {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--default-clickable-area, 34px);
+	height: var(--default-clickable-area, 34px);
+	min-height: 0;
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: var(--border-radius-element, 50%);
+	background: transparent !important;
+	color: var(--color-background-plain-text, #fff);
+	cursor: pointer;
+	opacity: .85;
+}
+.csp-trigger:hover,
+.csp-trigger:focus-visible,
+.csp-trigger[aria-expanded="true"] {
+	opacity: 1;
+	background-color: rgba(255, 255, 255, .15) !important;
+}
+.csp-trigger:focus-visible {
+	outline: 2px solid var(--color-background-plain-text, #fff);
+	outline-offset: -2px;
+}
+
+/*
+ * Panel docks as a sibling column on the right, inset and rounded like stock
+ * #content (--body-container-margin / --body-container-radius). When open on a
+ * wide enough viewport, body.calendar-side-panel--open shrinks #content /
+ * #content-vue so Talk (and other apps) reflow left — including Talk's own
+ * .app-sidebar (position:relative inside #content). Fixed-position sidebars get
+ * class .csp-shifted from JS and are inset by --csp-reserved.
+ *
+ * Layout when open (≥600px):
+ *   | margin | CONTENT | margin | PANEL | margin |
+ * --csp-reserved = panel width + one body-container-margin (the gap before the panel).
+ * Content width keeps core's 2× margin, then subtracts --csp-reserved.
+ */
+:root {
+	--csp-panel-width: 360px;
+	--csp-reserved: 0px;
+	--csp-radius: var(--body-container-radius, var(--border-radius-container, var(--border-radius-large, 12px)));
+}
+
+.csp-panel {
+	position: fixed;
+	/* Same inset as stock #content relative to the header / page chrome. */
+	top: calc(var(--header-height, 50px) + var(--body-container-margin, 0px));
+	inset-inline-end: var(--body-container-margin, 0px);
+	bottom: var(--body-container-margin, 0px);
+	z-index: 1700; /* above app sidebars (~1500), below modals */
+	width: min(var(--csp-panel-width), 100vw);
+	display: flex;
+	flex-direction: column;
+	background-color: var(--color-main-background);
+	color: var(--color-main-text);
+	border-inline-start: 1px solid var(--color-border);
+	border-radius: var(--csp-radius);
+	overflow: hidden; /* clip header / list to the rounded corners */
+}
+.csp-panel[hidden] {
+	display: none;
+}
+
+/* Desktop / tablet: reserve space so main UI pushes left instead of being covered. */
+@media (min-width: 600px) {
+	body.calendar-side-panel--open {
+		/* Panel column + the gutter between #content and the panel (matches stock card spacing). */
+		--csp-reserved: calc(min(var(--csp-panel-width), 100vw) + var(--body-container-margin, 0px));
+	}
+
+	body.calendar-side-panel--open #content,
+	body.calendar-side-panel--open #content-vue {
+		/* Core: 100% - 2×margin; then subtract panel + the gap before it. */
+		width: calc(100% - (var(--body-container-margin, 0px) * 2) - var(--csp-reserved)) !important;
+		max-width: calc(100% - (var(--body-container-margin, 0px) * 2) - var(--csp-reserved));
+	}
+
+	/* Fixed-position sidebars (legacy NcAppSidebar / teleported panels). */
+	body.calendar-side-panel--open .csp-shifted.app-sidebar,
+	body.calendar-side-panel--open .csp-shifted#app-sidebar,
+	body.calendar-side-panel--open .app-sidebar.csp-shifted {
+		inset-inline-end: var(--csp-reserved) !important;
+		right: var(--csp-reserved) !important;
+	}
+}
+
+/* Narrow screens: keep overlay (no reserved width); panel still inset/rounded when margin > 0. */
+@media (max-width: 599px) {
+	body.calendar-side-panel--open {
+		--csp-reserved: 0px;
+	}
+}
+
+.csp-panel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 8px 8px 8px 16px;
+	border-bottom: 1px solid var(--color-border);
+}
+.csp-panel__title {
+	margin: 0;
+	font-size: 18px;
+	font-weight: bold;
+}
+.csp-panel__actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+.csp-panel__open {
+	font-size: 13px;
+	color: var(--color-primary-element-text-dark, var(--color-primary-element));
+	padding: 4px 8px;
+	border-radius: var(--border-radius-element, 8px);
+}
+.csp-panel__open:hover {
+	background-color: var(--color-background-hover);
+}
+.csp-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--default-clickable-area, 34px);
+	height: var(--default-clickable-area, 34px);
+	min-height: 0;
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--color-main-text);
+	cursor: pointer;
+}
+.csp-close:hover,
+.csp-close:focus-visible {
+	background-color: var(--color-background-hover);
+}
+
+.csp-panel__body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding: 4px 8px 16px;
+}
+.csp-panel__status {
+	padding: 24px 8px;
+	text-align: center;
+	color: var(--color-text-maxcontrast);
+}
+
+.csp-day__title {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	margin: 12px 0 2px;
+	padding: 4px 8px;
+	font-size: 13px;
+	font-weight: bold;
+	color: var(--color-text-maxcontrast);
+	background-color: var(--color-main-background);
+}
+.csp-day__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.csp-event__link {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 6px 8px;
+	border-radius: var(--border-radius-element, 8px);
+	color: var(--color-main-text);
+	text-decoration: none;
+}
+a.csp-event__link:hover,
+a.csp-event__link:focus-visible {
+	background-color: var(--color-background-hover);
+}
+.csp-event__dot {
+	flex: 0 0 auto;
+	width: 10px;
+	height: 10px;
+	margin-top: 5px;
+	border-radius: 50%;
+}
+.csp-event__body {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+.csp-event__title {
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.csp-event__meta {
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.csp-event--current .csp-event__link {
+	background-color: var(--color-primary-element-light, rgba(0, 130, 201, .12));
+	box-shadow: inset 3px 0 0 var(--color-primary-element, #0082c9);
+}
+a.csp-event--current .csp-event__link:hover,
+.csp-event--current a.csp-event__link:hover,
+.csp-event--current a.csp-event__link:focus-visible {
+	background-color: var(--color-primary-element-light-hover, rgba(0, 130, 201, .2));
+}
+.csp-event__now {
+	font-weight: bold;
+	color: var(--color-primary-element-light-text, var(--color-primary-element, #0082c9));
+}
