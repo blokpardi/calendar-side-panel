@@ -1,5 +1,7 @@
 ## Version
 
+1.0.4 — panel top/bottom copied from the measured `#content-vue` / `#content` box (ResizeObserver + window resize) so its edges line up with the app pane.
+
 1.0.3 — stock rounded corners / body-container inset (builds on 1.0.2 push layout).
 
 1.0.2 — push layout left instead of overlaying Talk's right side.

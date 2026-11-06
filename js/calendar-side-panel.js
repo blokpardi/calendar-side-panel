@@ -216,6 +216,60 @@
 		})
 	}
 
+
+	// Match the main app pane's vertical box so our top/bottom edges line up with it.
+	let alignObserver = null
+	let alignRaf = 0
+
+	function contentPane() {
+		for (const id of ['content-vue', 'content']) {
+			const node = document.getElementById(id)
+			if (node && node.getBoundingClientRect().height > 0) return node
+		}
+		return null
+	}
+
+	function alignPanel() {
+		if (!panel || panel.hidden) return
+		const pane = contentPane()
+		if (!pane) return
+		const r = pane.getBoundingClientRect()
+		panel.style.top = Math.max(0, Math.round(r.top)) + 'px'
+		panel.style.bottom = Math.max(0, Math.round(window.innerHeight - r.bottom)) + 'px'
+	}
+
+	function scheduleAlign() {
+		if (alignRaf) return
+		alignRaf = window.requestAnimationFrame(() => {
+			alignRaf = 0
+			alignPanel()
+		})
+	}
+
+	function startAlign() {
+		alignPanel()
+		scheduleAlign() // again after #content reflows for our reserved width
+		window.addEventListener('resize', scheduleAlign)
+		const pane = contentPane()
+		if (pane && 'ResizeObserver' in window) {
+			if (alignObserver) alignObserver.disconnect()
+			alignObserver = new ResizeObserver(scheduleAlign)
+			alignObserver.observe(pane)
+		}
+	}
+
+	function stopAlign() {
+		window.removeEventListener('resize', scheduleAlign)
+		if (alignObserver) {
+			alignObserver.disconnect()
+			alignObserver = null
+		}
+		if (panel) {
+			panel.style.top = ''
+			panel.style.bottom = ''
+		}
+	}
+
 	function isOpen() {
 		return panel && !panel.hidden
 	}
@@ -225,6 +279,7 @@
 		panel.hidden = false
 		document.body.classList.add('calendar-side-panel--open')
 		syncFixedSidebars(true)
+		startAlign()
 
 		if (!window.__cspSidebarObserver) {
 			window.__cspSidebarObserver = new MutationObserver(() => {
@@ -251,6 +306,7 @@
 		panel.hidden = true
 		document.body.classList.remove('calendar-side-panel--open')
 		syncFixedSidebars(false)
+		stopAlign()
 		trigger.setAttribute('aria-expanded', 'false')
 		storeOpen(false)
 		clearInterval(refreshTimer)

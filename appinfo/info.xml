@@ -10,7 +10,7 @@ calendars you can see, including read-only subscriptions (ICS/webcal). Clicking 
 the Calendar app.
 
 Read-only. Does not modify Talk or Calendar.]]></description>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<licence>agpl</licence>
 	<author mail="bill@pardi.net">Bill Pardi</author>
 	<namespace>CalendarSidePanel</namespace>

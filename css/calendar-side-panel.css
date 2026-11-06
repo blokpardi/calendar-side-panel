@@ -56,7 +56,7 @@
 
 .csp-panel {
 	position: fixed;
-	/* Same inset as stock #content relative to the header / page chrome. */
+	/* Fallback until JS copies #content-vue / #content's measured top/bottom (alignPanel). */
 	top: calc(var(--header-height, 50px) + var(--body-container-margin, 0px));
 	inset-inline-end: var(--body-container-margin, 0px);
 	bottom: var(--body-container-margin, 0px);
